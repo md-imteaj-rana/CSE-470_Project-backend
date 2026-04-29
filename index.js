@@ -37,7 +37,7 @@ async function run() {
 
     // creating collections for users
     const userCollections = database.collection('user')
-
+      // saving the user to db
     app.post('/users',async(req, res) => {
       const userInfo = req.body;
       userInfo.role = "general user"
@@ -46,6 +46,15 @@ async function run() {
 
       const result = await userCollections.insertOne(userInfo);
 
+      res.send(result)
+    })
+
+    // getting role of the current user
+    app.get('/users/role/:email', async(req, res) => {
+      const {email} = req.params
+
+      const query = {email:email}
+      const result = await userCollections.findOne(query)
       res.send(result)
     })
 
