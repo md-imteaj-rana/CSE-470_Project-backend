@@ -31,6 +31,24 @@ async function run() {
 
     // All the backend wroks will start from here. 
 
+    // Creating database
+    const database = client.db('CampusBazar-CSE470-DB')
+
+
+    // creating collections for users
+    const userCollections = database.collection('user')
+
+    app.post('/users',async(req, res) => {
+      const userInfo = req.body;
+      userInfo.role = "general user"
+      userInfo.createdAt = new Date();
+
+
+      const result = await userCollections.insertOne(userInfo);
+
+      res.send(result)
+    })
+
     
 
     // Send a ping to confirm a successful connection
