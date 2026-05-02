@@ -37,8 +37,8 @@ async function run() {
 
     // creating collections for users
     const userCollections = database.collection('user')
-      // saving the user to db
-    app.post('/users',async(req, res) => {
+    // saving the user to db
+    app.post('/users', async (req, res) => {
       const userInfo = req.body;
       userInfo.role = "general user"
       userInfo.createdAt = new Date();
@@ -49,16 +49,41 @@ async function run() {
       res.send(result)
     })
 
-    // getting role of the current user
-    app.get('/users/role/:email', async(req, res) => {
-      const {email} = req.params
+    // Getting role of the current user
+    app.get('/users/role/:email', async (req, res) => {
+      const { email } = req.params
 
-      const query = {email:email}
+      const query = { email: email }
       const result = await userCollections.findOne(query)
       res.send(result)
     })
 
-    
+    // Get all users
+    app.get('/users', async (req, res) => {
+      const result = await userCollections.find().toArray();
+      res.send(result);
+    })
+
+    // Update user role
+    const { ObjectId } = require('mongodb');
+
+    app.patch('/users/:id', async (req, res) => {
+      const { id } = req.params;
+      const { role } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = { $set: { role } };
+      const result = await userCollections.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+    // Delete a user
+    app.delete('/users/:id', async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const result = await userCollections.deleteOne(filter);
+      res.send(result);
+    })
+
     // DO NOT CHANGE THE CODE BELOW ...
 
     // Send a ping to confirm a successful connection
@@ -73,12 +98,12 @@ run().catch(console.dir);
 
 
 // check server
-app.get('/', (req,res)=> {
-    res.send("Server is on")
+app.get('/', (req, res) => {
+  res.send("Server is on")
 })
 
-app.listen(port,()=>{
-    console.log(`server is running on ${port}`);
+app.listen(port, () => {
+  console.log(`server is running on ${port}`);
 })
 
 
