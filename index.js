@@ -37,6 +37,8 @@ async function run() {
 
     // creating collections for users
     const userCollections = database.collection('user')
+    // creating collections for listings
+    const listingCollections = database.collection('listings')
     // saving the user to db
     app.post('/users', async (req, res) => {
       const userInfo = req.body;
@@ -81,6 +83,30 @@ async function run() {
       const { id } = req.params;
       const filter = { _id: new ObjectId(id) };
       const result = await userCollections.deleteOne(filter);
+      res.send(result);
+    })
+
+    // Listings routes
+    // Add a new listing
+    app.post('/listings', async (req, res) => {
+      const listingInfo = req.body;
+      listingInfo.createdAt = new Date();
+
+      const result = await listingCollections.insertOne(listingInfo);
+      res.send(result);
+    })
+
+    // Get all listings
+    app.get('/listings', async (req, res) => {
+      const result = await listingCollections.find().toArray();
+      res.send(result);
+    })
+
+    // Get listings by email (user's listings)
+    app.get('/listings/:email', async (req, res) => {
+      const { email } = req.params;
+      const query = { email: email };
+      const result = await listingCollections.find(query).toArray();
       res.send(result);
     })
 
