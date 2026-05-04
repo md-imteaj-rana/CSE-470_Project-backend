@@ -55,8 +55,11 @@ async function run() {
     const userCollections = database.collection('user')
     // creating collections for listings
     const listingCollections = database.collection('listings')
+<<<<<<< HEAD
 =======
 >>>>>>> backend-cart-orders
+=======
+>>>>>>> afsanabackend
     // saving the user to db
     app.post('/users', async (req, res) => {
       const userInfo = req.body;
@@ -114,6 +117,19 @@ async function run() {
       res.send(result);
     })
 
+<<<<<<< HEAD
+=======
+    // Listings routes
+    // Add a new listing
+    app.post('/listings', async (req, res) => {
+      const listingInfo = req.body;
+      listingInfo.createdAt = new Date();
+
+      const result = await listingCollections.insertOne(listingInfo);
+      res.send(result);
+    })
+
+>>>>>>> afsanabackend
     // Get all listings
     app.get('/listings', async (req, res) => {
       const result = await listingCollections.find().toArray();
@@ -128,6 +144,7 @@ async function run() {
       res.send(result);
     })
 
+<<<<<<< HEAD
     // Get single listing by ID
     app.get('/listing/:id', async (req, res) => {
       const { id } = req.params;
@@ -256,6 +273,9 @@ async function run() {
 
     // ================= FAHIM'S PART END =================  
 >>>>>>> backend-cart-orders
+=======
+    // DO NOT CHANGE THE CODE BELOW ...
+>>>>>>> afsanabackend
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
