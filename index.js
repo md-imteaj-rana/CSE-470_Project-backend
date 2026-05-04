@@ -13,7 +13,7 @@ app.use(express.json())
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://campusbazar470:CampusBazarCse470@pawmarta10.t0jzost.mongodb.net/?appName=PawMartA10";
+const uri = "mongodb://127.0.0.1:27017";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -37,6 +37,8 @@ async function run() {
 
     // creating collections for users
     const userCollections = database.collection('user')
+    // creating collections for listings
+    const listingCollections = database.collection('listings')
     // saving the user to db
     app.post('/users', async (req, res) => {
       const userInfo = req.body;
@@ -84,7 +86,37 @@ async function run() {
       res.send(result);
     })
 
-    // DO NOT CHANGE THE CODE BELOW ...
+    // Listings routes
+    // Add a new listing
+    app.post('/listings', async (req, res) => {
+      const listingInfo = req.body;
+      listingInfo.createdAt = new Date();
+
+      const result = await listingCollections.insertOne(listingInfo);
+      res.send(result);
+    })
+
+    // Get all listings
+    app.get('/listings', async (req, res) => {
+      const result = await listingCollections.find().toArray();
+      res.send(result);
+    })
+
+    // Get listings by email (user's listings)
+    app.get('/listings/:email', async (req, res) => {
+      const { email } = req.params;
+      const query = { email: email };
+      const result = await listingCollections.find(query).toArray();
+      res.send(result);
+    })
+
+    // Get single listing by ID
+    app.get('/listing/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await listingCollections.findOne(query);
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
