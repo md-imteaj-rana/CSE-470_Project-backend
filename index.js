@@ -47,6 +47,8 @@ async function run() {
     const orderCollections = database.collection('orders');
     // ================= FAHIM'S COLLECTIONS END =================
 
+    const listingCollections = database.collection('listings');
+
 
     // saving the user to db
     app.post('/users', async (req, res) => {
@@ -96,6 +98,23 @@ async function run() {
 
       res.send(result);
     });
+
+    // ================= LISTINGS ROUTES =================
+    // Get all listings
+    app.get('/listings', async (req, res) => {
+      const result = await listingCollections.find().sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
+
+    // Create a new listing
+    app.post('/listings', async (req, res) => {
+      const listingData = req.body;
+      listingData.createdAt = new Date();
+      
+      const result = await listingCollections.insertOne(listingData);
+      res.send(result);
+    });
+    // ================= END LISTINGS ROUTES =================
 
 
     // ================= FAHIM'S PART START =================
