@@ -118,6 +118,40 @@ async function run() {
       res.send(result);
     })
 
+    // Wishlist routes
+    const wishlistCollections = database.collection('wishlist')
+
+    app.post('/wishlist', async (req, res) => {
+      const wishlistItem = req.body;
+      const { userEmail, productId } = wishlistItem;
+      if (!userEmail || !productId) {
+        return res.status(400).send({ message: 'userEmail and productId are required' });
+      }
+
+      const existing = await wishlistCollections.findOne({ userEmail, productId });
+      if (existing) {
+        return res.send({ acknowledged: true, insertedId: existing._id, alreadyExists: true });
+      }
+
+      wishlistItem.createdAt = new Date();
+      const result = await wishlistCollections.insertOne(wishlistItem);
+      res.send(result);
+    })
+
+    app.get('/wishlist/:email', async (req, res) => {
+      const { email } = req.params;
+      const query = { userEmail: email };
+      const result = await wishlistCollections.find(query).toArray();
+      res.send(result);
+    })
+
+    app.delete('/wishlist/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await wishlistCollections.deleteOne(query);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
