@@ -106,6 +106,30 @@ async function run() {
       res.send(result);
     });
 
+    // Get listings by user email
+    app.get('/listings/:email', async (req, res) => {
+      const { email } = req.params;
+      const query = { email: email };
+      const result = await listingCollections.find(query).sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
+
+    // Get a single listing by ID
+    app.get('/listing/:id', async (req, res) => {
+      try {
+        const { id } = req.params;
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ error: 'Invalid ID format' });
+        }
+        const filter = { _id: new ObjectId(id) };
+        const result = await listingCollections.findOne(filter);
+        res.send(result);
+      } catch (error) {
+        console.error('Error fetching listing by ID:', error);
+        res.status(500).send({ error: 'Internal server error' });
+      }
+    });
+
     // Create a new listing
     app.post('/listings', async (req, res) => {
       const listingData = req.body;
