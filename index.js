@@ -16,7 +16,7 @@ app.use(express.json())
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb://127.0.0.1:27017";
+const uri = "mongodb+srv://campusbazar470:CampusBazarCse470@pawmarta10.t0jzost.mongodb.net/?appName=PawMartA10";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -50,16 +50,6 @@ async function run() {
     const listingCollections = database.collection('listings');
 
 
-<<<<<<< HEAD
-    // creating collections for users
-    const userCollections = database.collection('user')
-    // creating collections for listings
-    const listingCollections = database.collection('listings')
-<<<<<<< HEAD
-=======
->>>>>>> backend-cart-orders
-=======
->>>>>>> afsanabackend
     // saving the user to db
     app.post('/users', async (req, res) => {
       const userInfo = req.body;
@@ -106,53 +96,6 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const result = await userCollections.deleteOne(filter);
 
-<<<<<<< HEAD
-    // Listings routes
-    // Add a new listing
-    app.post('/listings', async (req, res) => {
-      const listingInfo = req.body;
-      listingInfo.createdAt = new Date();
-
-      const result = await listingCollections.insertOne(listingInfo);
-      res.send(result);
-    })
-
-<<<<<<< HEAD
-=======
-    // Listings routes
-    // Add a new listing
-    app.post('/listings', async (req, res) => {
-      const listingInfo = req.body;
-      listingInfo.createdAt = new Date();
-
-      const result = await listingCollections.insertOne(listingInfo);
-      res.send(result);
-    })
-
->>>>>>> afsanabackend
-    // Get all listings
-    app.get('/listings', async (req, res) => {
-      const result = await listingCollections.find().toArray();
-      res.send(result);
-    })
-
-    // Get listings by email (user's listings)
-    app.get('/listings/:email', async (req, res) => {
-      const { email } = req.params;
-      const query = { email: email };
-      const result = await listingCollections.find(query).toArray();
-      res.send(result);
-    })
-
-<<<<<<< HEAD
-    // Get single listing by ID
-    app.get('/listing/:id', async (req, res) => {
-      const { id } = req.params;
-      const query = { _id: new ObjectId(id) };
-      const result = await listingCollections.findOne(query);
-      res.send(result);
-    })
-=======
       res.send(result);
     });
 
@@ -272,10 +215,6 @@ async function run() {
     });
 
     // ================= FAHIM'S PART END =================  
->>>>>>> backend-cart-orders
-=======
-    // DO NOT CHANGE THE CODE BELOW ...
->>>>>>> afsanabackend
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -296,5 +235,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`server is running on ${port}`);
 })
-
-
