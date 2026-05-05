@@ -15,7 +15,7 @@ app.use(express.json())
 // Mongodb connect
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://campusbazar470:CampusBazarCse470@pawmarta10.t0jzost.mongodb.net/?appName=PawMartA10";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -50,6 +50,22 @@ async function run() {
 
     const listingCollections = database.collection('listings');
 
+    const verifyAdmin = async (req, res, next) => {
+      const requesterEmail = req.headers['x-user-email'] || req.query.email || req.body?.email;
+
+      if (!requesterEmail) {
+        return res.status(401).send({ error: 'Admin email is required' });
+      }
+
+      const requester = await userCollections.findOne({ email: requesterEmail });
+
+      if (requester?.role !== 'admin') {
+        return res.status(403).send({ error: 'Admin access required' });
+      }
+
+      next();
+    };
+
 
     // saving the user to db
     app.post('/users', async (req, res) => {
@@ -77,8 +93,6 @@ async function run() {
     });
 
     // Update user role
-    const { ObjectId } = require('mongodb');
-
     app.patch('/users/:id', async (req, res) => {
       const { id } = req.params;
       const { role } = req.body;
@@ -103,6 +117,12 @@ async function run() {
     // ================= LISTINGS ROUTES =================
     // Get all listings
     app.get('/listings', async (req, res) => {
+      const result = await listingCollections.find().sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
+
+    // Get all listings for admin product management
+    app.get('/admin/listings', verifyAdmin, async (req, res) => {
       const result = await listingCollections.find().sort({ createdAt: -1 }).toArray();
       res.send(result);
     });
@@ -138,6 +158,24 @@ async function run() {
       
       const result = await listingCollections.insertOne(listingData);
       res.send(result);
+    });
+
+    // Delete a listing from admin product management
+    app.delete('/listings/:id', verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.params;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ error: 'Invalid ID format' });
+        }
+
+        const filter = { _id: new ObjectId(id) };
+        const result = await listingCollections.deleteOne(filter);
+        res.send(result);
+      } catch (error) {
+        console.error('Error deleting listing:', error);
+        res.status(500).send({ error: 'Internal server error' });
+      }
     });
     // ================= END LISTINGS ROUTES =================
 
