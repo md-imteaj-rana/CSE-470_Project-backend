@@ -46,6 +46,7 @@ async function run() {
     const cartCollections = database.collection('cart');
     const wishlistCollections = database.collection('wishlist');
     const orderCollections = database.collection('orders');
+    const reviewCollections = database.collection('reviews'); // Fahim
     // ================= FAHIM'S COLLECTIONS END =================
 
     const listingCollections = database.collection('listings');
@@ -359,6 +360,40 @@ async function run() {
           return { path: layer.route.path, methods };
         });
       res.send(routes);
+    });
+
+
+
+    // ================= REVIEW ROUTES - FAHIM =================
+
+    // Add rating and review
+    app.post('/reviews', async (req, res) => {
+      const reviewInfo = req.body;
+
+      reviewInfo.createdAt = new Date();
+
+      const result = await reviewCollections.insertOne(reviewInfo);
+      res.send(result);
+    });
+
+    // Get reviews by product id
+    app.get('/reviews/product/:productId', async (req, res) => {
+      const { productId } = req.params;
+
+      const query = { productId: productId };
+      const result = await reviewCollections.find(query).toArray();
+
+      res.send(result);
+    });
+
+    // Get reviews by user email
+    app.get('/reviews/user/:email', async (req, res) => {
+      const { email } = req.params;
+
+      const query = { userEmail: email };
+      const result = await reviewCollections.find(query).toArray();
+
+      res.send(result);
     });
 
     // ================= FAHIM'S PART END =================  
