@@ -212,7 +212,7 @@ async function run() {
       const orderInfo = req.body;
 
       orderInfo.createdAt = new Date();
-      orderInfo.status = "pending";
+      orderInfo.status = "placed";
 
       const result = await orderCollections.insertOne(orderInfo);
       res.send(result);
@@ -223,8 +223,30 @@ async function run() {
       const { email } = req.params;
 
       const query = { email: email };
-      const result = await orderCollections.find(query).toArray();
+      const result = await orderCollections.find(query).sort({ createdAt: -1 }).toArray();
 
+      res.send(result);
+    });
+
+    // Get all orders (for admin)
+    app.get('/all-orders', async (req, res) => {
+      const result = await orderCollections.find().sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
+
+    // Update order status
+    app.patch('/orders/:id/status', async (req, res) => {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: status
+        }
+      };
+
+      const result = await orderCollections.updateOne(filter, updateDoc);
       res.send(result);
     });
 
