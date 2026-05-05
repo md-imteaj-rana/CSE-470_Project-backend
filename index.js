@@ -370,18 +370,24 @@ async function run() {
     app.post('/reviews', async (req, res) => {
       const reviewInfo = req.body;
 
+      reviewInfo.productId = String(reviewInfo.productId);
+      reviewInfo.rating = Number(reviewInfo.rating);
       reviewInfo.createdAt = new Date();
 
       const result = await reviewCollections.insertOne(reviewInfo);
       res.send(result);
     });
 
-    // Get reviews by product id
+    // Get reviews by product id for ViewDetails
     app.get('/reviews/product/:productId', async (req, res) => {
       const { productId } = req.params;
 
-      const query = { productId: productId };
-      const result = await reviewCollections.find(query).toArray();
+      const query = { productId: String(productId) };
+
+      const result = await reviewCollections
+        .find(query)
+        .sort({ createdAt: -1 })
+        .toArray();
 
       res.send(result);
     });
@@ -391,11 +397,24 @@ async function run() {
       const { email } = req.params;
 
       const query = { userEmail: email };
-      const result = await reviewCollections.find(query).toArray();
+
+      const result = await reviewCollections
+        .find(query)
+        .sort({ createdAt: -1 })
+        .toArray();
 
       res.send(result);
     });
 
+    // Debug: get all reviews
+    app.get('/reviews', async (req, res) => {
+      const result = await reviewCollections
+        .find()
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      res.send(result);
+    });
     // ================= FAHIM'S PART END =================  
 
     // Send a ping to confirm a successful connection
