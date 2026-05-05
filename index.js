@@ -44,6 +44,7 @@ async function run() {
     // ================= FAHIM'S COLLECTIONS START =================
     // Feature: My Cart and My Orders
     const cartCollections = database.collection('cart');
+    const wishlistCollections = database.collection('wishlist');
     const orderCollections = database.collection('orders');
     // ================= FAHIM'S COLLECTIONS END =================
 
@@ -204,6 +205,58 @@ async function run() {
       res.send(result);
     });
 
+    // ================= WISHLIST ROUTES =================
+
+    // Add item to wishlist
+    app.post('/wishlist', async (req, res) => {
+      const wishlistItem = req.body;
+      wishlistItem.createdAt = new Date();
+
+      // Avoid duplicates for the same user and product
+      const exists = await wishlistCollections.findOne({
+        email: wishlistItem.email,
+        productId: wishlistItem.productId,
+      });
+
+      if (exists) {
+        return res.send({ acknowledged: true, duplicate: true, message: 'Item already in wishlist' });
+      }
+
+      const result = await wishlistCollections.insertOne(wishlistItem);
+      res.send(result);
+    });
+
+    // Get wishlist items by user email
+    app.get('/wishlist/:email', async (req, res) => {
+      const { email } = req.params;
+      const query = { email: email };
+      const result = await wishlistCollections.find(query).sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
+
+    // Update wishlist item quantity
+    app.patch('/wishlist/:id', async (req, res) => {
+      const { id } = req.params;
+      const { quantity } = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          quantity: quantity,
+        },
+      };
+
+      const result = await wishlistCollections.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // Remove single wishlist item
+    app.delete('/wishlist/:id', async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const result = await wishlistCollections.deleteOne(filter);
+      res.send(result);
+    });
 
     // ================= ORDER ROUTES - FAHIM =================
 
@@ -258,6 +311,16 @@ async function run() {
       const result = await orderCollections.deleteOne(filter);
 
       res.send(result);
+    });
+
+    app.get('/debug/routes', (req, res) => {
+      const routes = app._router.stack
+        .filter((layer) => layer.route)
+        .map((layer) => {
+          const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+          return { path: layer.route.path, methods };
+        });
+      res.send(routes);
     });
 
     // ================= FAHIM'S PART END =================  
